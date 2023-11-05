@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
-const clientRouter = require('./routes/clientRoutes');
+const configureRoutes = require('./routes');
+const { logger, boomErrorHandler, generalHandler } = require('./middlewares/errorHandlers');
 require('dotenv').config()
 
 app.use(express.json());
@@ -24,8 +25,12 @@ app.get('/',
     }
 );
 
-app.use('/client', clientRouter)
+configureRoutes(app);
 
-app.listen(process.env, () => {
+app.use(logger);
+app.use(boomErrorHandler);
+app.use(generalHandler);
+
+app.listen(process.env.PORT, () => {
     console.log('Listening on port 3000');
 });

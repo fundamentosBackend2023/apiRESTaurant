@@ -12,7 +12,8 @@ router.get('/', (req, res) => {
 
 router.get('/:clientId', (req, res) => {
     const { clientId } = req.params;
-    const myClient = client.getClient(clientId)
+    const myClient = client.getClient(clientId);
+    console.log(myClient)
     res.status(200).json({
         message: 'searched client',
         myClient

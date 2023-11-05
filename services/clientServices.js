@@ -1,3 +1,4 @@
+const boom = require('@hapi/boom');
 const clientDB = require('./../lib/models/client');
 
 class Client {
@@ -10,6 +11,9 @@ class Client {
 
     static getClient(clientId){
         const client = clientDB[clientId];
+        if(!client){
+            throw boom.notFound('client not found');
+        }
         return client;
     }
 
