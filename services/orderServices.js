@@ -1,32 +1,35 @@
-const db = require('../lib/models/orders');
-
+const orderModel = require('../lib/models/orders');
 class Order{
     constructor(){}
 
-    getAll(){
-        const orders = db;
+    async getAll(){
+        // El método populate permite que el campo "llave" no se muestre
+        // solo como un id, sino que se llene con la información del
+        // documento al que hace referencia.
+        // El parámetro que recibe es el nombre del campo "llave" en el
+        // esquema de este modelo.
+        const orders = await orderModel.find().populate('client');
         return orders;
     }
 
     getOne(id){
-        const order = db[id];
+        const order = orderModel[id];
         return order;
     }
 
-    create(data){
-        const ordersAmount = Object.keys(db).length + 1;
-        const id = 'o' + ordersAmount;
-        db[id] = data;
+    async create(data){
+        const newOrder = new orderModel(data);
+        await newOrder.save();
         return true;
     }
 
     update(id, data){
-        db[id] = data;
+        orderModel[id] = data;
         return true;
     }
 
     delete(id){
-        delete db[id];
+        delete orderModel[id];
         return true;
     }
 
