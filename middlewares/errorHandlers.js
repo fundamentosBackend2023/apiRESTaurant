@@ -1,3 +1,5 @@
+const { mongoose } = require("mongoose");
+
 const logger = (err, req, res, next) => {
     console.log(err.stack);
     next(err);
@@ -13,6 +15,18 @@ const boomErrorHandler = (err, req, res, next) => {
     }
 }
 
+// Ejemplo de error handler adicional manejando errores de mongoose
+const mongooseErrorHandler = (err, req, res, next) => {
+    if(err instanceof mongoose.Error){
+        res.status(500).json({
+            type: 'Database error',
+            stack: err.stack
+        });
+    }else{
+        next(err);
+    }
+}
+
 const generalHandler = (err, req, res, next) => {
     res.status(500).json({
         message: err.message,
@@ -20,4 +34,5 @@ const generalHandler = (err, req, res, next) => {
     });
 }
 
-module.exports = { logger, boomErrorHandler, generalHandler }
+module.exports = { logger, boomErrorHandler, mongooseErrorHandler,
+                generalHandler }

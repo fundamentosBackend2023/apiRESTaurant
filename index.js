@@ -1,8 +1,10 @@
 const express = require('express');
 const app = express();
 const configureRoutes = require('./routes');
-const { logger, boomErrorHandler, generalHandler } = require('./middlewares/errorHandlers');
-require('dotenv').config()
+const { logger, boomErrorHandler, 
+    mongooseErrorHandler, generalHandler } = require('./middlewares/errorHandlers');
+require('dotenv').config();
+const connectToMongo = require('./lib/models/mongo');
 
 app.use(express.json());
 app.use('/', (req, res, next) => {
@@ -25,10 +27,13 @@ app.get('/',
     }
 );
 
+connectToMongo();
+
 configureRoutes(app);
 
 app.use(logger);
 app.use(boomErrorHandler);
+app.use(mongooseErrorHandler);
 app.use(generalHandler);
 
 app.listen(process.env.PORT, () => {

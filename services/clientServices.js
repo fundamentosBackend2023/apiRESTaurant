@@ -4,33 +4,48 @@ const clientDB = require('./../lib/models/client');
 class Client {
     constructor(){}
 
-    static getAllClients(){
-        const clients = clientDB;
+    static async getAllClients(minAge){
+        let filter = {};
+        if(minAge){
+            filter.age = {$gte: minAge }
+        }
+        const clients = await clientDB.find(filter);
         return clients;
     }
 
-    static getClient(clientId){
-        const client = clientDB[clientId];
+    static async getClient(clientId){
+        // No olviden considerar la operación asíncrona, de lo contrario
+        // el retorno que tendrán será solo una pending promise.
+        const client = await clientDB.findById(clientId);
         if(!client){
             throw boom.notFound('client not found');
         }
         return client;
     }
 
-    static createClient(data){
-        const usersAmount = Object.keys(clientDB).length + 1;
-        const id = 'c' + usersAmount;
-        clientDB[id] = data;
+    static async createClient(data){
+        const client = new clientDB(data);
+        await client.save()
         return true;
     }
 
-    static updateClient(clientId, amount){
-        clientDB[clientId].amount += amount;
+    static async updateClientAge(clientId, age){
+        // Usamos el mismo método de getOne para obtener el cliente buscado
+        // No olviden que es asíncrono así que hay que manejar su respuesta
+        // de forma asíncrona.
+        // Además, de esta forma si no encuentra un match, el método que
+        // ya hicimos manejará el error.
+        const client = await this.getClient(clientId);
+        // Modificamos en el documento lo que haga falta como si
+        // modificaramos un objeto nativo.
+        client.age = age;
+        // Guardamos los cambios hechos al modelo.
+        await client.save();
         return true;
     }
 
-    static deleteClient(clientId){
-        delete clientDB[clientId];
+    static async deleteClient(clientId){
+        await clientDB.findByIdAndDelete(clientId);
         return true;
     }
 
